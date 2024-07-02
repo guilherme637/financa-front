@@ -1,0 +1,30 @@
+services:
+  node_financa:
+    container_name: node_financa
+    build:
+      context: .
+      dockerfile: ./devops/docker/node/Dockerfile
+    volumes:
+      - .:/var/www/html/financa-front:rw
+    networks:
+      - external-net
+    extra_hosts:
+      - financa-service:host-gateway
+
+  apache_financas_front:
+    container_name: apache_financas_front
+    build:
+      context: .
+      dockerfile: ./devops/docker/apache/Dockerfile
+    ports:
+      - 4200:80
+    volumes:
+      - .:/var/www/html/financa-front:rw
+      - ./devops/docker/apache/vhosts/default.conf:/etc/apache2/sites-enabled/000-default.conf
+    networks:
+      - external-net
+    depends_on:
+      - node_financa
+networks:
+  external-net:
+    external: true

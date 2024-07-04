@@ -2,7 +2,9 @@ import {Component, ElementRef, ViewChild} from '@angular/core';
 import {CategoriaService} from "../../Domain/Service/Categoria/CategoriaService";
 import {NgForOf} from "@angular/common";
 import {Categoria} from "../../Domain/Service/Categoria/Categoria";
-import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
+import {SituacaoService} from "../../Domain/Service/Situacao/SituacaoService";
+import {SituacaoResponseInterface} from "../../Domain/Service/Situacao/SituacaoResponseInterface";
 
 @Component({
   selector: 'app-conta-modal',
@@ -18,23 +20,45 @@ import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} f
 export class ContaModalComponent {
   @ViewChild('modal') modal!: ElementRef
 
+  default = 'Selecione';
   private _formBuilder: FormBuilder;
-  public categorias: Categoria[] = [];
-  categoriaSelecionada: any;
-  contaForm: any = FormGroup;
+  private _contaForm: any = FormGroup;
+  public categorias: Array<Categoria>;
+  public situacoes: Array<SituacaoResponseInterface>;
+  public parcela: boolean = false;
+  public formInvalid: boolean = false;
 
-    constructor(formBuilder: FormBuilder, http: CategoriaService) {
-    this.categorias = http.getAllCategorias();
-    this._formBuilder = formBuilder;
-  }
+    constructor(
+      formBuilder: FormBuilder,
+      categoriaService: CategoriaService,
+      situacaoService: SituacaoService
+    ) {
+      this.categorias = categoriaService.getAllCategorias();
+      this.situacoes = situacaoService.getAllSituacoes()
+      this._formBuilder = formBuilder;
+    }
 
   ngOnInit(): void {
-    this.contaForm = this._formBuilder.group({
-      nome: [''],
-      valor: [''],
-      mesDivida: [''],
-      categoria: new FormControl(this.categorias)
-    })
+    this.initForm()
+  }
+
+  public getForm(): FormGroup {
+      return this._contaForm;
+  }
+
+  private initForm(): void {
+    this._contaForm  = this._formBuilder.group({
+      nome: ['', Validators.required],
+      valor: ['', Validators.required],
+      mesDivida: ['', Validators.required],
+      categoria: ['', Validators.required],
+      situacao: ['', Validators.required],
+      parcela: this._formBuilder.group({
+        total: [''],
+        pago: [''],
+        mesesPagos: ['']
+      })
+    });
   }
 
   public showModal() {
@@ -45,11 +69,20 @@ export class ContaModalComponent {
     this.modal.nativeElement.classList.add('hidden')
   }
 
-  public getCategorias(event: Event) {
-    this.categoriaSelecionada = (event.target as HTMLSelectElement).value;
+  public hasParcela(event: any) {
+     this.parcela = event.target.checked;
   }
 
   public onSubmit(): void {
-    console.log(this.contaForm.value);
+    if (!this._contaForm.valid) {
+      this.formInvalid = true;
+      return;
+    }
+
+    this.formInvalid = false;
+
+    let valores = this._contaForm.value;
+
+    console.log(valores);
   }
 }

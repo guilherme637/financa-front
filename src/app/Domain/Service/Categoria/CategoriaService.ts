@@ -1,6 +1,5 @@
-import {CategoriaClient} from "../../../Infrastructure/Categoria/CategoriaClient";
+import {CategoriaClient} from "../../../Infrastructure/Client/Categoria/CategoriaClient";
 import {Injectable} from "@angular/core";
-import {AllCategorias} from "./AllCategorias";
 import {Categoria} from "./Categoria";
 
 @Injectable({providedIn: 'root'})
@@ -12,15 +11,13 @@ export class CategoriaService {
   }
 
   public getAllCategorias() {
-    const categoria: Categoria[] = [];
+    let categoria: Array<Categoria> = [];
 
     this._clientCategoria
       .getCategorias()
       .subscribe(
         data => {
-          Object.entries(data).map(
-            ([key, value]) => categoria.push(value)
-          )
+          categoria = data
         }
       )
 

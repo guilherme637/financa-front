@@ -1,4 +1,4 @@
-import {Component, ElementRef, ViewChild} from '@angular/core';
+import {Component, ElementRef, inject, ViewChild} from '@angular/core';
 import {CategoriaService} from "../../Domain/Service/Categoria/CategoriaService";
 import {formatDate, NgForOf} from "@angular/common";
 import {Categoria} from "../../Domain/Service/Categoria/Categoria";
@@ -6,7 +6,9 @@ import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} fr
 import {SituacaoService} from "../../Domain/Service/Situacao/SituacaoService";
 import {SituacaoResponseInterface} from "../../Domain/Service/Situacao/SituacaoResponseInterface";
 import {SalvarContaPostService} from "../../Domain/Service/Conta/SalvarContaPostService";
-import {NgxMaskDirective, provideNgxMask} from "ngx-mask";
+import {CurrencyMaskModule} from "ng2-currency-mask";
+import {MatDialog} from "@angular/material/dialog";
+import {ModalErroComponent} from "../modal-erro/modal-erro.component";
 
 @Component({
   selector: 'app-conta-modal',
@@ -15,10 +17,7 @@ import {NgxMaskDirective, provideNgxMask} from "ngx-mask";
     NgForOf,
     FormsModule,
     ReactiveFormsModule,
-    NgxMaskDirective,
-  ],
-  providers: [
-    provideNgxMask()
+    CurrencyMaskModule
   ],
   templateUrl: './conta-modal.component.html',
   styleUrl: './conta-modal.component.css'
@@ -34,18 +33,18 @@ export class ContaModalComponent {
   public situacoes: Array<SituacaoResponseInterface>;
   public parcela: boolean = false;
   public formInvalid: boolean = false;
-
-    constructor(
-      formBuilder: FormBuilder,
-      categoriaService: CategoriaService,
-      situacaoService: SituacaoService,
-      salvarContaService: SalvarContaPostService
-    ) {
-      this._salvarContaService = salvarContaService;
-      this.categorias = categoriaService.getAllCategorias();
-      this.situacoes = situacaoService.getAllSituacoes()
-      this._formBuilder = formBuilder;
-    }
+  readonly dialog = inject(MatDialog);
+  constructor(
+    formBuilder: FormBuilder,
+    categoriaService: CategoriaService,
+    situacaoService: SituacaoService,
+    salvarContaService: SalvarContaPostService,
+  ) {
+    this._salvarContaService = salvarContaService;
+    this.categorias = categoriaService.getAllCategorias();
+    this.situacoes = situacaoService.getAllSituacoes()
+    this._formBuilder = formBuilder;
+  }
 
   ngOnInit(): void {
     this.initForm()
@@ -71,6 +70,11 @@ export class ContaModalComponent {
   }
 
   public showModal() {
+    // this.modalService.openModal(this)
+    this.dialog.open(ModalErroComponent, {
+
+    })
+
     this.modal.nativeElement.classList.remove('hidden')
   }
 
@@ -91,5 +95,5 @@ export class ContaModalComponent {
     this.formInvalid = false;
 
     this._salvarContaService.save(this._contaForm.value, this.parcela);
-  }
+    }
 }

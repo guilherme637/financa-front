@@ -12,16 +12,17 @@ export class SalvarContaPostService
   }
 
   public save(data: object, parcela: boolean) {
-    console.log(parcela);
-    let builder: ContaDtoBuilder = parcela ? ContaDirector.builder(data) : ContaDirector.builderWithParcela(data);
-    console.log(ContaDirector.builderWithParcela(data).build());
-    // this._salvarClient
-    //   .post(
-    //     builder.build()
-    //   ).subscribe({
-    //   error: error => {
-    //     console.log(error);
-    //   }
-    // });
+    let builder: ContaDtoBuilder = parcela ? ContaDirector.builderWithParcela(data) : ContaDirector.builder(data);
+
+    this._salvarClient
+      .post(
+        builder.build()
+      ).subscribe({
+      error: error => {
+        if (error.status == 500) {
+          console.error('ocorreu um erro')
+        }
+      }
+    });
   }
 }

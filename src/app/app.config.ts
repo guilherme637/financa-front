@@ -1,15 +1,10 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { IConfig } from 'ngx-mask'
-
-const maskConfig: Partial<IConfig> = {
-  validation: false,
-};
 
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import {provideHttpClient, withFetch} from "@angular/common/http";
-import {provideEnvironmentNgxMask} from "ngx-mask";
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,9 +12,8 @@ export const appConfig: ApplicationConfig = {
       { eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(),
-    provideEnvironmentNgxMask(maskConfig),
     provideHttpClient(
       withFetch(),
-    ),
+    ), provideAnimationsAsync(),
   ]
 };
